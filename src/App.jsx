@@ -17,18 +17,27 @@ function App() {
 
   const handleAdd = () => {
     if (inputText === '') return
-    setItems([...items, inputText])
+
+    // 新しいメモオブジェクトを作る
+    const newItem = {
+      id: Date.now(), // 一意のIDとして現在の時間（ミリ秒）を使用
+      text: inputText,
+      date: new Date().toLocaleString() // 「2026/4/26 13:45:30」のような形式
+    }
+
+    setItems([...items, newItem])
     setInputText('')
   }
 
-  const handleDelete = (index) => {
-    const newItems = items.filter((_, i) => i !== index)
+  const handleDelete = (id) => {
+    // indexではなく、一意の id でフィルタリングする（より安全な方法）
+    const newItems = items.filter((item) => item.id !== id)
     setItems(newItems)
   }
 
   return (
     <div className="App">
-      <h1>Persistent Memo App</h1>
+      <h1>Dated Memo App</h1>
       <input 
         type="text" 
         value={inputText}
@@ -37,11 +46,12 @@ function App() {
       />
       <button onClick={handleAdd}>追加</button>
 
-      <ul>
-        {items.map((item, index) => (
-          <li key={index}>
-            {item}
-            <button onClick={() => handleDelete(index)} style={{ marginLeft: '10px' }}>
+      <ul style={{ listStyle: 'none', padding: 0 }}>
+        {items.map((item) => (
+          <li key={item.id} style={{ borderBottom: '1px solid #ccc',padding: '10px', textAlign:'left'}}>
+            <div style={{ fontSize: '0.8em', color: '#888'}}>{item.date}</div>
+            <div style={{ fontSize: '1.2em'}}>{item.text}</div>
+            <button onClick={() => handleDelete(item.id)} style={{ marginLeft: '10px' }}>
               削除
             </button>
           </li>
