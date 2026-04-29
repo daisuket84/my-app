@@ -1,14 +1,24 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react' // useEffect を追加
 import './App.css'
 
 function App() {
-  const [inputText, setInputText] = useState('') // 入力中の文字
-  const [items, setItems] = useState([])         // メモのリスト（配列）
+  const [inputText, setInputText] = useState('')
+  
+  // 1. 初期値を LocalStorage から読み込む
+  const [items, setItems] = useState(() => {
+    const saved = localStorage.getItem('my-memos')
+    return saved ? JSON.parse(saved) : []
+  })
+
+  // 2. items が更新されるたびに、LocalStorage に保存する
+  useEffect(() => {
+    localStorage.setItem('my-memos', JSON.stringify(items))
+  }, [items])
 
   const handleAdd = () => {
-    if (inputText === '') return // 空っぽなら何もしない
-    setItems([...items, inputText]) // 今のリストに新しい文字を追加
-    setInputText('') // 入力欄を空にする
+    if (inputText === '') return
+    setItems([...items, inputText])
+    setInputText('')
   }
 
   const handleDelete = (index) => {
@@ -16,24 +26,24 @@ function App() {
     setItems(newItems)
   }
 
-
   return (
     <div className="App">
-      <h1>Simple Memo App</h1>
-      
+      <h1>Persistent Memo App</h1>
       <input 
         type="text" 
         value={inputText}
-        onChange={(e) => setInputText(e.target.value)} // 文字を打つたびに状態を更新
+        onChange={(e) => setInputText(e.target.value)}
         placeholder="メモを入力..."
       />
       <button onClick={handleAdd}>追加</button>
+
       <ul>
         {items.map((item, index) => (
-          // <li>と<button>をkey付きのdiv かフラグメントで囲む
           <li key={index}>
             {item}
-          <button onClick={()=> handleDelete(index)} style={{marginLeft:'10px'}}>削除</button>
+            <button onClick={() => handleDelete(index)} style={{ marginLeft: '10px' }}>
+              削除
+            </button>
           </li>
         ))}
       </ul>
